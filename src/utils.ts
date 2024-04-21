@@ -115,8 +115,8 @@ import {
   
     // Compressed NFT Metadata
     const compressedNFTMetadata: MetadataArgs = {
-      name: "Noviciado OG Pass X3",
-      symbol: "OG Pass X3",
+      name: "Noviciado OG Pass",
+      symbol: "OG Pass",
       uri: "https://green-key-hummingbird-678.mypinata.cloud/ipfs/QmVNfBVEhKSbiLNrAiho66wjCPTQDLfqeHMrcrR9sdbSmJ",
       creators: [{ address: creator, verified: false, share: 100 }],
       editionNonce: 0,
@@ -172,7 +172,7 @@ import {
     // Create a regular collection NFT using Metaplex
     const collectionNft = await metaplex.nfts().create({
       uri: "https://green-key-hummingbird-678.mypinata.cloud/ipfs/QmfQSsfeXesFzv1LUhTnxF2a8pbLyD5JEp2YoXfsdJH9cN",
-      name: "Noviciado OG Pass X3",
+      name: "Noviciado OG Pass",
       sellerFeeBasisPoints: 0,
       updateAuthority: payer,
       mintAuthority: payer,
