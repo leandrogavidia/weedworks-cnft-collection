@@ -36,10 +36,16 @@ dotenv.config()
 
 async function main() {
     if (!process.env?.PAYER_SECRET_KEY) {
-        throw new Error("Missing Payer Secret Key .env variable")
+        throw new Error("Missing PAYER_SECRET_KEY .env variable")
     }
 
-    const connection = new Connection(clusterApiUrl("devnet"), "confirmed")
+    if (!process.env.RPC_URL) {
+        throw new Error("Missing RPC_URL .env variable")
+    }
+
+    const rpc = process.env.RPC_URL ? process.env.RPC_URL : clusterApiUrl("devnet")
+
+    const connection = new Connection(rpc, "confirmed")
 
     const secretKey = base58.serialize(process.env?.PAYER_SECRET_KEY)
     const wallet = Keypair.fromSecretKey(secretKey)
