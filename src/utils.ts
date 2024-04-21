@@ -1,4 +1,5 @@
 import {
+    ComputeBudgetProgram,
     Connection,
     Keypair,
     LAMPORTS_PER_SOL,
@@ -98,8 +99,14 @@ import {
           toPubkey: receiver.publicKey,
           lamports: LAMPORTS_PER_SOL,
         })
+
+        const priorityFeesInstruction = await getPriorityFees([ix.programId.toBase58()])
+
+        if (priorityFeesInstruction === undefined) {
+          throw new Error("Error getting transaction priority fee transaction")
+        }
   
-        await sendAndConfirmTransaction(connection, new Transaction().add(ix), [
+        await sendAndConfirmTransaction(connection, new Transaction().add(priorityFeesInstruction).add(ix), [
           sender,
         ])
   
@@ -197,5 +204,52 @@ import {
       mint: collectionNft.mintAddress,
       metadata: collectionNft.metadataAddress,
       masterEditionAccount: collectionNft.masterEditionAddress,
+    }
+  }
+
+  export async function getPriorityFees(accountKeys: string[]) {
+    try {
+      if(!process.env?.HELIUS_URL) {
+        throw new Error("Missing HELIUS_URL environment variable")
+      }
+    
+      const raw = JSON.stringify({
+        jsonrpc: '2.0',
+        id: '1',
+        method: 'getPriorityFeeEstimate',
+        params: [
+          {
+            accountKeys: accountKeys,
+            options: {
+              priority_level: 'HIGH',
+            },
+          },
+        ],
+      });
+    
+      const myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/json");
+    
+      const requestOptions = {
+        method: 'POST',
+        headers: myHeaders,
+        body: raw
+      };
+    
+      const res = await fetch(process.env?.HELIUS_URL, requestOptions)
+      const { result } = await res.json()
+      const computePriceInstruction = ComputeBudgetProgram.setComputeUnitPrice({
+        microLamports: result.priorityFeeEstimate
+      });
+    
+      if (!result.priorityFeeEstimate) {
+        throw new Error("Error getting Priority Fees")
+      }
+  
+      console.log("Transaction Priority Fees", result)
+    
+      return computePriceInstruction
+    } catch (e) {
+      console.error(e)
     }
   }

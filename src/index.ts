@@ -13,6 +13,7 @@ import {
     createNftMetadata,
     CollectionDetails,
     getOrCreateCollectionNFT,
+    getPriorityFees,
 } from "./utils"
 import {
     SPL_ACCOUNT_COMPRESSION_PROGRAM_ID,
@@ -121,7 +122,13 @@ async function createAndInitializeTree(
         }
     )
 
-    const tx = new Transaction().add(allocTreeIx, createTreeIx)
+    const priorityFeesInstruction = await getPriorityFees([allocTreeIx.programId.toBase58(), createTreeIx.programId.toBase58()])
+
+    if (priorityFeesInstruction === undefined) {
+      throw new Error("Error getting transaction priority fee transaction")
+    }
+
+    const tx = new Transaction().add(priorityFeesInstruction).add(allocTreeIx, createTreeIx)
     tx.feePayer = payer.publicKey
 
     try {
@@ -196,9 +203,15 @@ async function mintCompressedNftToCollection(
             }
         )
 
+        const priorityFeesInstruction = await getPriorityFees([mintIx.programId.toBase58()])
+
+        if (priorityFeesInstruction === undefined) {
+          throw new Error("Error getting transaction priority fee transaction")
+        }
+
         try {
             // Create new transaction and add the instruction
-            const tx = new Transaction().add(mintIx)
+            const tx = new Transaction().add(priorityFeesInstruction).add(mintIx)
 
             // Set the fee payer for the transaction
             tx.feePayer = payer.publicKey
@@ -330,7 +343,13 @@ async function transferNft(
             }
         )
 
-        const tx = new Transaction().add(transferIx)
+        const priorityFeesInstruction = await getPriorityFees([transferIx.programId.toBase58()])
+
+        if (priorityFeesInstruction === undefined) {
+          throw new Error("Error getting transaction priority fee transaction")
+        }
+
+        const tx = new Transaction().add(priorityFeesInstruction).add(transferIx)
         tx.feePayer = sender.publicKey
         const txSignature = await sendAndConfirmTransaction(
             connection,
