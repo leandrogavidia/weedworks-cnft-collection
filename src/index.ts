@@ -39,10 +39,6 @@ async function main() {
         throw new Error("Missing PAYER_SECRET_KEY .env variable")
     }
 
-    if (!process.env.RPC_URL) {
-        throw new Error("Missing RPC_URL .env variable")
-    }
-
     const rpc = process.env.RPC_URL ? process.env.RPC_URL : clusterApiUrl("devnet")
 
     const connection = new Connection(rpc, "confirmed")
