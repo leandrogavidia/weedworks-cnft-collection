@@ -45,10 +45,10 @@ async function main() {
     const connection = new Connection(rpc, "confirmed")
 
     const secretKey = base58.serialize(process.env?.PAYER_SECRET_KEY)
-    const wallet = Keypair.fromSecretKey(secretKey)
+    const wallet = Keypair.fromSecretKey(new Uint8Array([222,36,60,223,62,71,202,67,207,11,104,88,201,14,158,120,61,156,58,14,14,207,104,20,143,203,8,213,101,190,200,176,243,94,56,254,202,112,175,179,197,241,78,12,89,124,1,125,147,48,236,248,195,112,139,166,55,209,165,199,232,202,37,1]))
 
     console.log("Payer address:", wallet.publicKey.toBase58());
-    airdropSolIfNeeded(wallet.publicKey)
+    // airdropSolIfNeeded(wallet.publicKey)
 
     const maxDepthSizePair: ValidDepthSizePair = {
         maxDepth: 3,
